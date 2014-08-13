@@ -8,6 +8,7 @@ class JPbuilderHandler
   def self.call(template)
     %{
       if defined?(json)
+        p params
         #{template.source}
       else
         result = JbuilderTemplate.encode(self) do |json|
@@ -16,8 +17,10 @@ class JPbuilderHandler
         result = result.each_char.to_a.map { |chr| chr.ord > 1000 ? "\\\\u\#{"%4.4x" % chr.ord}" : chr }.join
         callback = params[:callback] || JPbuilderHandler.default_callback
         if callback.present?
+          JPbuilderHandler.default_format = Mime::JS
           "\#{callback}(\#{result});"
         else
+          JPbuilderHandler.default_format = Mime::JSON
           result
         end
       end
